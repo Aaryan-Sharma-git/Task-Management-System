@@ -1,15 +1,22 @@
+import { z } from "zod";
+
+
 export enum TaskPriority {
-  HIGH = "High",
-  MEDIUM = "Medium",
-  LOW = "Low",
+  HIGH = "high",
+  MEDIUM = "medium",
+  LOW = "low",
 }
 
 export enum TaskStatus {
-  PENDING = "Pending",
-  COMPLETED = "Completed",
+  PENDING = "pending",
+  COMPLETED = "completed",
 }
 
 export enum UserRole {
   ADMIN = "admin",
   USER = "user",
 }
+
+export const TaskPrioritySchema = z.enum(["high", "medium", "low"]);
+export const TaskStatusSchema = z.enum(["pending", "completed"]);
+
