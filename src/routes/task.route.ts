@@ -24,12 +24,10 @@ import { TaskPriority } from "../utils/enum.util.js";
 
 const router = Router();
 
-/* Priority routes */
 router.get("/high", validate(paginationQuerySchema), getTasksByPriority(TaskPriority.HIGH));
 router.get("/medium",validate(paginationQuerySchema), getTasksByPriority(TaskPriority.MEDIUM));
 router.get("/low", validate(paginationQuerySchema), getTasksByPriority(TaskPriority.LOW)); 
 
-/* CRUD & actions */
 router.post("/",  validate(createTaskSchema), createTask);
 router.put("/:id", validate(updateTaskSchema), updateTask);
 router.delete("/:id", validate(taskIdParamSchema), deleteTask);

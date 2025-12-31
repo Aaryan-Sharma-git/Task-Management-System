@@ -43,6 +43,8 @@ export const getTasksByPriority =
 
     const [tasks, total] = await Promise.all([
       Task.find(filter)
+        .populate("assignedTo", "_id name email role")
+        .populate("createdBy", "_id name email role")
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit),
@@ -155,8 +157,13 @@ export const updateTaskStatus = async (req: Request, res: Response) => {
     });
   }
 
-  task.status = status;
-  await task.save();
+  try {
+    task.status = status;
+    await task.save();
+  } catch (error) {
+    console.error("Save error:", error);
+  }
+
 
   res.status(200).json({
     success: true,

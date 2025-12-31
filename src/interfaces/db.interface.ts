@@ -17,7 +17,7 @@ export interface ITask extends Document {
   dueDate: Date;
   priority: TaskPriority;
   status: TaskStatus;
-  assignedTo: Types.ObjectId;
+  assignedTo?: Types.ObjectId;
   createdBy: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
