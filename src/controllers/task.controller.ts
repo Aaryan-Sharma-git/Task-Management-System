@@ -146,15 +146,23 @@ export const updateTaskStatus = async (req: Request, res: Response) => {
     });
   }
 
-  // User can update only their assigned task
-  if (
-    req.user!.role === "user" &&
-    task.assignedTo.toString() !== req.user!.userId
-  ) {
-    return res.status(403).json({
-      success: false,
-      message: "Not authorized to update this task",
-    });
+  // Normal user restrictions
+  if (req.user!.role === "user") {
+    // Task must be assigned
+    if (!task.assignedTo) {
+      return res.status(403).json({
+        success: false,
+        message: "Task is not assigned to you",
+      });
+    }
+
+    // Task must be assigned to the logged-in user
+    if (task.assignedTo.toString() !== req.user!.userId) {
+      return res.status(403).json({
+        success: false,
+        message: "Not authorized to update this task",
+      });
+    }
   }
 
   try {
@@ -162,8 +170,11 @@ export const updateTaskStatus = async (req: Request, res: Response) => {
     await task.save();
   } catch (error) {
     console.error("Save error:", error);
+    return res.status(400).json({
+      success: false,
+      message: "Failed to update task status",
+    });
   }
-
 
   res.status(200).json({
     success: true,

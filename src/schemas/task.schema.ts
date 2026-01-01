@@ -16,11 +16,11 @@ export const paginationQuerySchema = z.object({
 
 export const createTaskSchema = z.object({
   body: z.object({
-    title: z.string().min(3),
-    description: z.string().min(5),
+    title: z.string().min(1),
+    description: z.string().min(1),
     dueDate: z.coerce.date(),
     priority: TaskPrioritySchema,
-    assignedTo: z.string().length(24),
+    assignedTo: z.string().length(24).optional(),
   }),
 });
 
@@ -29,8 +29,8 @@ export const updateTaskSchema = z.object({
     id: z.string().length(24),
   }),
   body: z.object({
-    title: z.string().min(3).optional(),
-    description: z.string().min(5).optional(),
+    title: z.string().min(1).optional(),
+    description: z.string().min(1).optional(),
     dueDate: z.coerce.date().optional(),
     priority: TaskPrioritySchema
   }),
