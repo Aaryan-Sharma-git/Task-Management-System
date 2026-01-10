@@ -2,34 +2,30 @@
 
 import type { Request, Response, NextFunction } from "express";
 import { verifyToken } from "../utils/jwt.util.js";
-import { accessTokenCookieOptions } from "../utils/cookie.js";
+import { refreshTokenCookieOptions } from "../utils/cookie.js";
 import { TokenType } from "../utils/enum.util.js";
-import type { AccessTokenPayload } from "../interfaces/jwt.interface.js";
+import type { RefreshTokenPayload } from "../interfaces/jwt.interface.js";
 
-export const authenticate = (
+export const authenticateRefresh = (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const accessToken = req.cookies?.access_token;
+    const refreshToken = req.cookies?.refresh_token;
 
-    if (!accessToken) {
+    if (!refreshToken) {
       return res.status(401).json({
         success: false,
-        message: "access token is missing.",
-        errorCode: "INVALID_ACCESS_TOKEN"
+        message: "Authentication required",
       });
     }
 
-    const decoded = verifyToken(accessToken, accessTokenCookieOptions, TokenType.ACCESS_TOKEN) as AccessTokenPayload;
+    const decoded = verifyToken(refreshToken, refreshTokenCookieOptions, TokenType.REFRESH_TOKEN) as RefreshTokenPayload;
 
-    req.user = {
-      userId: decoded.userId,
-      email: decoded.email,
-      role: decoded.role,
-      sessionId: decoded.sessionId
-    };
+    req.session = {
+        sessionId: decoded.sessionId
+    }
 
     next();
   } catch (error: any) {
@@ -37,14 +33,12 @@ export const authenticate = (
       return res.status(401).json({
         success: false,
         message: "Session expired. Please login again.",
-        errorCode: "INVALID_ACCESS_TOKEN"
       });
     }
 
     return res.status(401).json({
       success: false,
       message: "Invalid authentication token",
-      errorCode: "INVALID_ACCESS_TOKEN"
     });
   }
 };

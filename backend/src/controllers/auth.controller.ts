@@ -16,7 +16,9 @@ import type { Request, Response } from "express";
 import User from "../models/user.model.js";
 import { generateToken } from "../utils/jwt.util.js";
 import { registerSchema, loginSchema } from "../schemas/auth.schema.js";
-import {authCookieOptions} from "../utils/cookie.js"
+import {accessTokenCookieOptions, refreshTokenCookieOptions} from "../utils/cookie.js"
+import { SessionModel, THIRTY_DAYS_IN_MS } from "../models/session.model.js";
+import { TokenType } from "../utils/enum.util.js";
 
 export const register = async (req: Request, res: Response) => {
   try {
@@ -38,13 +40,27 @@ export const register = async (req: Request, res: Response) => {
       password,
     });
 
-    const token = generateToken({
+    const session = await SessionModel.create({
+      userId: user._id
+    })
+
+    const refreshToken = generateToken({
+      sessionId: session._id.toString()
+    }, {
+      expiresIn: '30d'
+    }, TokenType.REFRESH_TOKEN)
+
+    const accessToken = generateToken({
       userId: user._id.toString(),
+      sessionId: session._id.toString(),
       email: user.email,
       role: user.role,
+    }, {
+      expiresIn: '15m'
     });
 
-    res.cookie("access_token", token, authCookieOptions);
+    res.cookie("refresh_token", refreshToken, refreshTokenCookieOptions);
+    res.cookie("access_token", accessToken, accessTokenCookieOptions);
 
     return res.status(201).json({
       success: true,
@@ -90,13 +106,27 @@ export const login = async (req: Request, res: Response) => {
       });
     }
 
-    const token = generateToken({
+    const session = await SessionModel.create({
+      userId: user._id
+    })
+
+    const refreshToken = generateToken({
+      sessionId: session._id.toString()
+    }, {
+      expiresIn: '30d'
+    }, TokenType.REFRESH_TOKEN)
+
+    const accessToken = generateToken({
       userId: user._id.toString(),
+      sessionId: session._id.toString(),
       email: user.email,
       role: user.role,
+    }, {
+      expiresIn: '15m'
     });
 
-    res.cookie("access_token", token, authCookieOptions);
+    res.cookie("refresh_token", refreshToken, refreshTokenCookieOptions);
+    res.cookie("access_token", accessToken, accessTokenCookieOptions);
 
     return res.status(200).json({
       success: true,
@@ -118,10 +148,75 @@ export const login = async (req: Request, res: Response) => {
 };
 
 export const logout = async (req: Request, res: Response) => {
-  res.clearCookie("access_token", authCookieOptions);
+
+  const sessionId = req.user?.sessionId;
+  const session = await SessionModel.findByIdAndDelete(sessionId);
+  
+  res.clearCookie("access_token", accessTokenCookieOptions);
+  res.clearCookie("refresh_token", refreshTokenCookieOptions);
 
   res.status(200).json({
     success: true,
     message: "Logged out successfully",
   });
 };
+
+export const getAccessToken = async (req: Request, res: Response) => {
+  try {
+    const sessionId = req.session?.sessionId;
+
+    const session = await SessionModel.findById(sessionId);
+
+    if(!session){
+      return res.status(404).json({
+        message: 'session has expired.'
+      })
+    }
+
+    const sessionNeedRefresh = (session.expiresAt.getTime() - Date.now() <= 24*60*60*1000);
+
+    if(sessionNeedRefresh){
+      session.expiresAt = new Date(Date.now() + THIRTY_DAYS_IN_MS);
+      await session.save();
+
+      const refreshToken = generateToken({
+        sessionId: session._id.toString()
+      }, {
+        expiresIn: '30d'
+      }, TokenType.REFRESH_TOKEN);
+
+      res.cookie("refresh_token", refreshToken, refreshTokenCookieOptions);
+    }
+
+    const user = await User.findById(session.userId);
+
+    if(!user){
+      return res.status(404).json({
+        message: "user with this session does not exist."
+      })
+    }
+
+    const accessToken = generateToken({
+      userId: user._id.toString(),
+      sessionId: session._id.toString(),
+      email: user.email,
+      role: user.role,
+    }, {
+      expiresIn: '15m'
+    });
+
+    res.cookie("access_token", accessToken, accessTokenCookieOptions);
+
+    return res.status(200).json({
+      message: "access token refreshed successfully."
+    })
+
+  } catch (error: any) {
+    return res.status(500).json({
+      message: "Internal server error",
+      error: error.message
+    });
+  }
+};
+
+

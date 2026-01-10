@@ -17,6 +17,11 @@ export enum UserRole {
   USER = "user",
 }
 
+export enum TokenType {
+  REFRESH_TOKEN = "refresh_token",
+  ACCESS_TOKEN = "access_token"
+}
+
 export const TaskPrioritySchema = z.enum(["high", "medium", "low"]);
 export const TaskStatusSchema = z.enum(["pending", "completed"]);
 

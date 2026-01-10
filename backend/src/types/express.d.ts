@@ -1,9 +1,12 @@
-import { JwtPayload } from "../interfaces/jwt.interface.ts";
+import { type AccessTokenPayload, type RefreshTokenPayload } from "../interfaces/jwt.interface.ts";
 
 declare global {
   namespace Express {
     interface Request {
-      user?: JwtPayload;
+      user?: AccessTokenPayload;
+      session?: {
+        sessionId: string
+      }
     }
   }
 }

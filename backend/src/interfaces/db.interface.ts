@@ -22,3 +22,10 @@ export interface ITask extends Document {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface ISession extends Document {
+  userId: Types.ObjectId;
+  expiresAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}

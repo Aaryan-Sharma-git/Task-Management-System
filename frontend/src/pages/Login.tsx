@@ -6,6 +6,7 @@ import { loginUser } from "../api/authApi";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
+import { getRedirectPath } from "../utils/authRedirect";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -30,7 +31,8 @@ const Login = () => {
       await loginUser(data); // backend auth
       await login();         // update auth context
 
-      navigate("/", { replace: true });
+      const redirectPath = getRedirectPath();
+      navigate(redirectPath, { replace: true });
     } catch (err: any) {
       setServerError(
         err?.response?.data?.message || "Invalid email or password"
