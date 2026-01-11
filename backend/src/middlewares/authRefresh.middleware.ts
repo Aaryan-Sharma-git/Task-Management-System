@@ -23,7 +23,7 @@ export const authenticateRefresh = (
 
     const decoded = verifyToken(refreshToken, refreshTokenCookieOptions, TokenType.REFRESH_TOKEN) as RefreshTokenPayload;
 
-    req.session = {
+    req.sessionData = {
         sessionId: decoded.sessionId
     }
 

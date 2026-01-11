@@ -15,3 +15,7 @@ export const PORT = getEnv('PORT', '8000');
 export const FRONTEND_URL = getEnv('FRONTEND_URL');
 export const JWT_ACCESS_TOKEN_SECRET = getEnv('JWT_ACCESS_TOKEN_SECRET');
 export const JWT_REFRESH_TOKEN_SECRET = getEnv('JWT_REFRESH_TOKEN_SECRET');
+export const GOOGLE_CLIENT_ID = getEnv('GOOGLE_CLIENT_ID');
+export const GOOGLE_CLIENT_SECRET = getEnv('GOOGLE_CLIENT_SECRET');
+export const GOOGLE_REDIRECT_URL = getEnv('GOOGLE_REDIRECT_URL');
+export const SESSION_SECRET = getEnv('SESSION_SECRET');

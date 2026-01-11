@@ -10,27 +10,43 @@ const UserSchema = new Schema<IUser>(
       required: true,
       trim: true,
     },
+
     email: {
       type: String,
       required: true,
       unique: true,
       lowercase: true,
     },
+
     password: {
       type: String,
-      required: true,
-      select: false, 
+      select: false,
+      required: function(): boolean {
+        return this.authProvider === "local";
+      },
     },
+
+    authProvider: {
+      type: String,
+      enum: ["local", "google"],
+      default: "local",
+    },
+
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true, 
+    },
+
     role: {
       type: String,
       enum: Object.values(UserRole),
       default: UserRole.USER,
     },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
+
 
 UserSchema.pre("save", async function () {
   if (!this.isModified("password")) return;

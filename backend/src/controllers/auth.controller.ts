@@ -163,7 +163,7 @@ export const logout = async (req: Request, res: Response) => {
 
 export const getAccessToken = async (req: Request, res: Response) => {
   try {
-    const sessionId = req.session?.sessionId;
+    const sessionId = req.sessionData?.sessionId;
 
     const session = await SessionModel.findById(sessionId);
 

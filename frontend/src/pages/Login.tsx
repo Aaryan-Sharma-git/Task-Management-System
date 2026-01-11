@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "../schemas/authSchema";
 import type { LoginFormData } from "../schemas/authSchema";
-import { loginUser } from "../api/authApi";
+import { loginUser, googleAuth } from "../api/authApi";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
@@ -36,6 +36,21 @@ const Login = () => {
     } catch (err: any) {
       setServerError(
         err?.response?.data?.message || "Invalid email or password"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleAuth = async () => {
+    try {
+      setLoading(true);
+      setServerError("");
+
+      await googleAuth();
+    } catch (err: any) {
+      setServerError(
+        err?.response?.data?.message || "Google authentication failed"
       );
     } finally {
       setLoading(false);
@@ -101,6 +116,16 @@ const Login = () => {
             className="w-full py-2 text-white font-semibold rounded-lg bg-linear-to-br from-indigo-600 to-purple-600 hover:opacity-90 transition disabled:opacity-60"
           >
             {loading ? "Logging in..." : "Login"}
+          </button>
+
+          <button
+            type="button"
+            onClick={handleGoogleAuth}
+            disabled={loading}
+            className="w-full py-2 font-semibold rounded-lg border border-gray-300 flex items-center justify-center gap-2 text-gray-700 bg-white hover:bg-gray-50 transition mt-3 disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            <span className="text-lg">G</span>
+            <span>Continue with Google</span>
           </button>
         </form>
 

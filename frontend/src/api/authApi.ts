@@ -8,6 +8,9 @@ export const registerUser = (data: RegisterFormData) =>
 export const loginUser = (data: LoginFormData) =>
   api.post("/auth/login", data);
 
+export const googleAuth = () => {
+  window.location.href = `${import.meta.env.VITE_API_URL}/google`;
+}
+
 export const logoutUser = () =>
   api.post("/auth/logout");
-

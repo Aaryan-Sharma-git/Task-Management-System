@@ -5,6 +5,8 @@ export interface IUser extends Document {
   name: string;
   email: string;
   password: string;
+  authProvider: "local" | "google";
+  googleId: string;
   role: UserRole;
   createdAt: Date;
   updatedAt: Date;
