@@ -29,7 +29,7 @@ const Login = () => {
       setServerError("");
 
       await loginUser(data); // backend auth
-      await login();         // update auth context
+      await login(); // update auth context
 
       const redirectPath = getRedirectPath();
       navigate(redirectPath, { replace: true });
